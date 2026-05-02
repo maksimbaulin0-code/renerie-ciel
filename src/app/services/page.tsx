@@ -19,7 +19,7 @@ export default function ServicesPage() {
   }, []);
 
   return (
-    <div className="px-5 pt-10 pb-24">
+    <div className="px-5 pt-6 pb-24">
       <h1 className="text-[20px] font-light tracking-wide mb-2">Прайс</h1>
       <p className="text-white/30 text-[12px] mb-8">Выберите категорию или услугу</p>
 

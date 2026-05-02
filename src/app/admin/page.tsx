@@ -150,7 +150,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <div className="px-5 pt-10 pb-24">
+    <div className="px-5 pt-6 pb-24">
       <h1 className="text-[20px] font-light tracking-wide mb-2">Мастер</h1>
       <p className="text-white/25 text-[12px] mb-6">Управление студией</p>
 

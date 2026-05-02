@@ -31,7 +31,7 @@ export default function HomePage() {
 
   return (
     <div className="pb-24">
-      <div className="px-5 pt-14 pb-12">
+      <div className="px-5 pt-6 pb-12">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-px h-8 bg-white/10" />
           <div>

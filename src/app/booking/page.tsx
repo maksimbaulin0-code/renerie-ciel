@@ -92,7 +92,7 @@ function BookingContent() {
 
   if (done) {
     return (
-      <div className="px-5 pt-20 pb-24 text-center">
+      <div className="px-5 pt-10 pb-24 text-center">
         <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
           <span className="text-lg">✓</span>
         </div>
@@ -118,7 +118,7 @@ function BookingContent() {
   }
 
   return (
-    <div className="px-5 pt-10 pb-24">
+    <div className="px-5 pt-6 pb-24">
       <h1 className="text-[20px] font-light tracking-wide mb-2">Запись</h1>
 
       {/* PROGRESS */}
@@ -339,7 +339,7 @@ export default function BookingPage() {
   return (
     <Suspense
       fallback={
-        <div className="px-5 pt-10 pb-24">
+        <div className="px-5 pt-6 pb-24">
           <div className="h-6 w-24 bg-white/[0.02] rounded animate-pulse mb-4" />
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
