@@ -4,14 +4,14 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 const inter = Inter({
-  variable: "--font-geist-sans",
+  variable: "--font-inter",
   subsets: ["latin", "cyrillic"],
   weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Renerie Ciel Nails",
-  description: "Студия эстетики и дисциплины",
+  title: "Alimsa Nail",
+  description: "Студия маникюра — эстетика в каждой детали",
 };
 
 export const viewport: Viewport = {
@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#000000",
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({
@@ -29,9 +29,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={`${inter.variable} antialiased`}>
-      <body className="min-h-screen bg-black text-white">
-        {children}
-        <Navbar />
+      <body className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+        <div className="max-w-lg mx-auto min-h-screen relative">
+          {children}
+          <Navbar />
+        </div>
       </body>
     </html>
   );

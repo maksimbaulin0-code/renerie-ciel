@@ -2,45 +2,46 @@
 
 import { useEffect, useState } from "react";
 import { fetchServices } from "@/lib/api";
+import Link from "next/link";
 import type { Service } from "@/lib/api";
 
-const CATEGORIES: Record<string, { title: string; icon: string }> = {
-  extension: { title: "Наращивание", icon: "📏" },
-  claws: { title: "Когти", icon: "🦅" },
-  coverage: { title: "Покрытие", icon: "💅" },
+const CATS: Record<string, { title: string; icon: string }> = {
+  extension: { title: "Наращивание", icon: "✦" },
+  claws: { title: "Когти", icon: "◇" },
+  coverage: { title: "Покрытие", icon: "◧" },
 };
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
     fetchServices().then(setServices);
   }, []);
 
-  const grouped = Object.entries(CATEGORIES).map(([key, cat]) => ({
+  const grouped = Object.entries(CATS).map(([key, cat]) => ({
     ...cat,
     key,
     services: services.filter((s) => s.category === key),
   }));
 
-  const displayed = activeCategory
-    ? grouped.filter((g) => g.key === activeCategory)
-    : grouped;
+  const displayed = active ? grouped.filter((g) => g.key === active) : grouped;
 
   return (
-    <div className="px-4 pt-4 pb-24">
-      <h1 className="text-xl font-light tracking-wide mb-4">
-        <span className="text-[var(--accent)]">Услуги</span>
+    <div className="px-5 pt-6 pb-24">
+      <h1 className="text-xl font-light tracking-wide mb-1">
+        <span className="text-[var(--color-accent)]">Услуги</span>
       </h1>
+      <p className="text-[var(--color-text-muted)] text-xs mb-6">
+        Выберите категорию или услугу для записи
+      </p>
 
-      <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hide">
+      {/* FILTER CHIPS */}
+      <div className="flex gap-2 mb-8 overflow-x-auto scrollbar-hide">
         <button
-          onClick={() => setActiveCategory(null)}
-          className={`glass-card px-4 py-2 text-xs font-medium whitespace-nowrap transition-all ${
-            !activeCategory
-              ? "border-[var(--accent)]/40 text-[var(--accent)]"
-              : "text-white/50"
+          onClick={() => setActive(null)}
+          className={`badge whitespace-nowrap transition-all ${
+            !active ? "!bg-[var(--color-accent-glow)] !border-[var(--color-accent)]/30 !text-[var(--color-accent-2)]" : ""
           }`}
         >
           Все
@@ -48,11 +49,11 @@ export default function ServicesPage() {
         {grouped.map((cat) => (
           <button
             key={cat.key}
-            onClick={() => setActiveCategory(cat.key)}
-            className={`glass-card px-4 py-2 text-xs font-medium whitespace-nowrap transition-all ${
-              activeCategory === cat.key
-                ? "border-[var(--accent)]/40 text-[var(--accent)]"
-                : "text-white/50"
+            onClick={() => setActive(cat.key)}
+            className={`badge whitespace-nowrap transition-all ${
+              active === cat.key
+                ? "!bg-[var(--color-accent-glow)] !border-[var(--color-accent)]/30 !text-[var(--color-accent-2)]"
+                : ""
             }`}
           >
             {cat.icon} {cat.title}
@@ -60,25 +61,31 @@ export default function ServicesPage() {
         ))}
       </div>
 
+      {/* SERVICE CARDS */}
       {displayed.map((cat) => (
-        <div key={cat.key} className="mb-6">
-          <h2 className="text-sm font-medium text-white/40 uppercase tracking-widest mb-3">
-            {cat.icon} {cat.title}
-          </h2>
-          <div className="space-y-2">
+        <div key={cat.key} className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-sm">{cat.icon}</span>
+            <span className="section-label">{cat.title}</span>
+          </div>
+          <div className="space-y-3">
             {cat.services.map((svc) => (
-              <div
-                key={svc.id}
-                className="glass-card glass-card-hover p-4 flex justify-between items-center"
-              >
-                <div>
-                  <p className="text-sm text-white/90">{svc.name}</p>
-                  <p className="text-xs text-white/30 mt-0.5">{cat.title}</p>
+              <Link href={`/booking?service=${svc.id}`} key={svc.id}>
+                <div className="card p-5 flex justify-between items-center">
+                  <div className="flex-1">
+                    <p className="text-[14px] font-medium">{svc.name}</p>
+                    <p className="text-[11px] text-[var(--color-text-muted)] mt-1">
+                      {cat.title}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="price-tag text-[14px]">
+                      {svc.price.toLocaleString()}₽
+                    </span>
+                    <span className="text-[var(--color-text-muted)] text-xs">→</span>
+                  </div>
                 </div>
-                <span className="text-base font-semibold text-[var(--accent)]">
-                  {svc.price.toLocaleString()}₽
-                </span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

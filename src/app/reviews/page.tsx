@@ -10,6 +10,7 @@ export default function ReviewsPage() {
   const [rating, setRating] = useState(0);
   const [text, setText] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [hoverStar, setHoverStar] = useState(0);
 
   useEffect(() => {
     fetchReviews().then(setReviews);
@@ -18,12 +19,7 @@ export default function ReviewsPage() {
   const handleSubmit = async () => {
     if (rating === 0 || !text.trim()) return;
     const user = await getTGUser();
-    await sendTGData({
-      action: "review",
-      text: text.trim(),
-      rating,
-      user_name: user.name,
-    });
+    await sendTGData({ action: "review", text: text.trim(), rating, user_name: user.name });
     setReviews((prev) => [
       { id: Date.now(), user_name: user.name, text: text.trim(), rating },
       ...prev,
@@ -33,30 +29,45 @@ export default function ReviewsPage() {
     setShowForm(false);
   };
 
+  const avgRating = reviews.length
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : "—";
+
   return (
-    <div className="px-4 pt-4 pb-24">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-light tracking-wide">
-          <span className="text-[var(--accent)]">Отзывы</span>
-        </h1>
+    <div className="px-5 pt-6 pb-24">
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h1 className="text-xl font-light tracking-wide">
+            <span className="text-[var(--color-accent)]">Отзывы</span>
+          </h1>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-lg font-light text-[var(--color-gold)]">{avgRating}</span>
+            <span className="text-xs text-[var(--color-text-muted)]">
+              {reviews.length} {reviews.length === 1 ? "отзыв" : "отзывов"}
+            </span>
+          </div>
+        </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="glass-card px-3 py-1.5 text-xs font-medium text-[var(--accent)]"
+          className="btn-secondary !w-auto !px-4 !py-2 text-xs font-medium"
         >
-          {showForm ? "Отмена" : "+ Написать"}
+          {showForm ? "Отмена" : "✎ Написать"}
         </button>
       </div>
 
+      {/* FORM */}
       {showForm && (
-        <div className="glass-card p-4 mb-6 space-y-4">
-          <div className="flex justify-center gap-2">
+        <div className="card p-5 mb-6 space-y-4">
+          <div className="flex justify-center gap-3">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
                 onClick={() => setRating(star)}
-                className="star"
+                onMouseEnter={() => setHoverStar(star)}
+                onMouseLeave={() => setHoverStar(0)}
+                className="star-btn"
               >
-                {star <= rating ? "⭐" : "☆"}
+                {star <= (hoverStar || rating) ? "★" : "☆"}
               </button>
             ))}
           </div>
@@ -65,32 +76,43 @@ export default function ReviewsPage() {
             onChange={(e) => setText(e.target.value)}
             placeholder="Расскажите о вашем опыте..."
             rows={3}
-            className="resize-none"
+            className="field"
           />
-          <button onClick={handleSubmit} className="btn-primary text-sm">
+          <button
+            onClick={handleSubmit}
+            disabled={rating === 0 || !text.trim()}
+            className="btn btn-primary disabled:opacity-30"
+          >
             Отправить отзыв
           </button>
         </div>
       )}
 
+      {/* LIST */}
       <div className="space-y-3">
         {reviews.length === 0 ? (
-          <div className="glass-card p-6 text-center">
-            <p className="text-white/30 text-sm">
-              Пока нет отзывов. Будьте первым!
+          <div className="card p-8 text-center">
+            <span className="text-3xl opacity-20 block mb-2">♡</span>
+            <p className="text-[var(--color-text-muted)] text-sm">
+              Пока нет отзывов
+            </p>
+            <p className="text-[var(--color-text-muted)] text-xs mt-1">
+              Будьте первым!
             </p>
           </div>
         ) : (
           reviews.map((review) => (
-            <div key={review.id} className="glass-card p-4">
+            <div key={review.id} className="card p-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium">{review.user_name}</span>
-                <span className="text-xs">
-                  {"⭐".repeat(review.rating)}
-                  {"☆".repeat(5 - review.rating)}
+                <span className="text-[var(--color-gold)] text-xs tracking-wider">
+                  {"★".repeat(review.rating)}
+                  <span className="text-[var(--color-text-muted)]">
+                    {"☆".repeat(5 - review.rating)}
+                  </span>
                 </span>
               </div>
-              <p className="text-sm text-white/60 leading-relaxed">
+              <p className="text-[13px] text-[var(--color-text-dim)] leading-relaxed">
                 {review.text}
               </p>
             </div>

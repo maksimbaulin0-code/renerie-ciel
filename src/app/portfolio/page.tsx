@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchPortfolio } from "@/lib/api";
 import type { PortfolioItem } from "@/lib/api";
 
-const FALLBACK_IMAGES = [
+const FALLBACK = [
   { id: 1, description: "Наращивание — нюдовый френч" },
   { id: 2, description: "Короткие — молочный цвет" },
   { id: 3, description: "Длинные — зеркальный эффект" },
@@ -18,55 +18,57 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     fetchPortfolio().then((data) => {
-      if (data.length > 0) {
-        setItems(data);
-      } else {
-        setItems(
-          FALLBACK_IMAGES.map((f) => ({ ...f, photo_url: "" })) as PortfolioItem[]
-        );
-      }
+      setItems(
+        data.length > 0
+          ? data
+          : (FALLBACK.map((f) => ({ ...f, photo_url: "" })) as PortfolioItem[])
+      );
     });
   }, []);
 
   return (
-    <div className="px-4 pt-4 pb-24">
-      <h1 className="text-xl font-light tracking-wide mb-6">
-        <span className="text-[var(--accent)]">Портфолио</span>
+    <div className="px-5 pt-6 pb-24">
+      <h1 className="text-xl font-light tracking-wide mb-1">
+        <span className="text-[var(--color-accent)]">Портфолио</span>
       </h1>
+      <p className="text-[var(--color-text-muted)] text-xs mb-6">
+        Работы мастера
+      </p>
 
-      <div className="carousel-container mb-8">
+      {/* CAROUSEL */}
+      <div className="carousel mb-8 -mx-5 px-5">
         {items.map((item) => (
           <div
             key={item.id}
-            className="glass-card w-[260px] h-[320px] flex flex-col items-center justify-center overflow-hidden"
+            className="card w-[240px] h-[300px] overflow-hidden flex flex-col"
           >
             {item.photo_url ? (
               <img
                 src={item.photo_url}
                 alt={item.description}
-                className="w-full h-full object-cover"
+                className="w-full h-[220px] object-cover"
               />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full">
-                <span className="text-4xl mb-3">✨</span>
-                <p className="text-xs text-white/40 text-center px-4">
-                  {item.description}
-                </p>
+              <div className="w-full h-[220px] flex items-center justify-center bg-[var(--color-surface-2)]">
+                <span className="text-4xl opacity-20">✦</span>
               </div>
             )}
+            <div className="p-3 flex-1 flex items-center">
+              <p className="text-xs text-[var(--color-text-dim)]">
+                {item.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>
 
-      <h2 className="text-sm font-medium text-white/40 uppercase tracking-widest mb-4">
-        До / После
-      </h2>
-
+      {/* GRID */}
+      <p className="section-label mb-4">Галерея</p>
       <div className="grid grid-cols-2 gap-3">
-        {items.slice(0, 4).map((item) => (
+        {items.slice(0, 6).map((item) => (
           <div
-            key={`ba-${item.id}`}
-            className="glass-card aspect-square flex flex-col items-center justify-center overflow-hidden"
+            key={`g-${item.id}`}
+            className="card aspect-square overflow-hidden"
           >
             {item.photo_url ? (
               <img
@@ -75,9 +77,9 @@ export default function PortfolioPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="flex flex-col items-center justify-center">
-                <span className="text-2xl mb-1">💅</span>
-                <p className="text-[10px] text-white/30 text-center px-2">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--color-surface-2)]">
+                <span className="text-2xl opacity-20 mb-1">◇</span>
+                <p className="text-[9px] text-[var(--color-text-muted)] text-center px-2">
                   {item.description}
                 </p>
               </div>
