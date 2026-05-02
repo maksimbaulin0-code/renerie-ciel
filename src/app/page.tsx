@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { initTG, isTGAdmin } from "@/lib/tg";
-import { fetchServices } from "@/lib/api";
+import { fetchServices, setApiBase } from "@/lib/api";
 import Link from "next/link";
 import type { Service } from "@/lib/api";
 
@@ -16,18 +16,41 @@ export default function HomePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [apiUrl, setApiUrl] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setApiUrl(localStorage.getItem("alimsa_api_url") || "");
+    }
+  }, []);
+
+  const loadServices = async () => {
+    setErr("");
+    try {
+      const svcs = await fetchServices();
+      setServices(svcs);
+    } catch (e: any) {
+      setErr(e.message || "Не удалось загрузить услуги");
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     (async () => {
       await initTG();
       setIsAdmin(await isTGAdmin());
-      try {
-        const svcs = await fetchServices();
-        setServices(svcs);
-      } catch {}
-      setLoading(false);
+      loadServices();
     })();
   }, []);
+
+  const handleSetUrl = () => {
+    if (!apiUrl) return;
+    setApiBase(apiUrl);
+    setErr("");
+    setLoading(true);
+    loadServices();
+  };
 
   const grouped = Object.entries(CATS).map(([key, meta]) => ({
     ...meta,
@@ -56,6 +79,35 @@ export default function HomePage() {
       </div>
 
       <div className="px-5">
+        {/* ERROR / API URL SETUP */}
+        {err && (
+          <div className="card p-4 mb-6">
+            <p className="text-red-400/60 text-[13px] mb-3">{err}</p>
+            <p className="text-[11px] text-white/25 mb-2">
+              Введите ngrok URL:
+            </p>
+            <div className="flex gap-2">
+              <input
+                value={apiUrl}
+                onChange={(e) => setApiUrl(e.target.value)}
+                placeholder="https://xxx.ngrok-free.app"
+                className="field text-[12px] !py-2.5 flex-1"
+              />
+              <button
+                onClick={handleSetUrl}
+                className="btn-book !w-auto !px-3 !py-2.5 text-[12px]"
+              >
+                OK
+              </button>
+            </div>
+            <div className="text-[10px] text-white/15 mt-2 space-y-0.5">
+              <p>1. Запустите: ./start.sh</p>
+              <p>2. Скопируйте https:// URL</p>
+              <p>3. Вставьте сюда и нажмите OK</p>
+            </div>
+          </div>
+        )}
+
         {/* CTA */}
         <Link href="/booking" className="block">
           <button className="btn-book">Записаться</button>
@@ -80,7 +132,9 @@ export default function HomePage() {
                 <span className="text-lg block mb-1.5 opacity-40">{cat.icon}</span>
                 <span className="text-[11px] text-white/50">{cat.title}</span>
                 <span className="text-[10px] text-white/20 block mt-0.5">
-                  от {Math.min(...cat.items.map((s) => s.price)).toLocaleString()}₽
+                  {cat.items.length > 0
+                    ? `от ${Math.min(...cat.items.map((s) => s.price)).toLocaleString()}₽`
+                    : "—"}
                 </span>
               </div>
             </Link>
@@ -95,6 +149,10 @@ export default function HomePage() {
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-12 bg-white/[0.02] rounded-xl animate-pulse" />
             ))}
+          </div>
+        ) : services.length === 0 ? (
+          <div className="py-8 text-center">
+            <p className="text-white/20 text-sm">Нет данных</p>
           </div>
         ) : (
           <div>
