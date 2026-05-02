@@ -208,7 +208,13 @@ export default function AdminPage() {
                       <p className="text-[13px]">{b.name} — {b.price}₽</p>
                       <p className="text-[11px] text-white/25">{b.date} в {b.time}</p>
                       {b.comment && <p className="text-[11px] text-white/35 mt-1.5">💬 {b.comment}</p>}
-                      {b.photo_wish && <p className="text-[11px] text-white/35 mt-0.5">📸 Референс</p>}
+                      {b.photo_wish && (
+                        b.photo_wish.startsWith('/uploads/') ? (
+                          <img src={b.photo_wish} alt="Референс" className="mt-1.5 w-24 h-24 object-cover rounded-lg" />
+                        ) : (
+                          <p className="text-[11px] text-white/35 mt-0.5">📸 {b.photo_wish}</p>
+                        )
+                      )}
                     </div>
                   ))}
                 </div>

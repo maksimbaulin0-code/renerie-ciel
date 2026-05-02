@@ -180,6 +180,15 @@ export async function createBooking(data: {
   });
 }
 
+export async function uploadFile(file: File): Promise<{ ok: boolean; url: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiFetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+}
+
 // Portfolio
 export async function uploadPortfolio(photo: File, description: string): Promise<{ ok: boolean; id: number; url: string }> {
   const formData = new FormData();

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { fetchServices, fetchSlots, createBooking } from "@/lib/api";
+import { fetchServices, fetchSlots, createBooking, uploadFile } from "@/lib/api";
 import { getTGUser } from "@/lib/tg";
 import type { Service, Slot } from "@/lib/api";
 
@@ -69,6 +69,11 @@ function BookingContent() {
     setSubmitting(true);
     setErr("");
     try {
+      let photoUrl = "";
+      if (photoFile) {
+        const res = await uploadFile(photoFile);
+        photoUrl = res.url;
+      }
       const user = await getTGUser();
       await createBooking({
         service_id: sel.id,
@@ -76,7 +81,7 @@ function BookingContent() {
         user_id: user.id || "web",
         user_name: user.name || "Гость",
         comment: comment.trim(),
-        photo_wish: photoFile ? photoFile.name : "",
+        photo_wish: photoUrl,
       });
       setDone(true);
     } catch (e: any) {
@@ -98,6 +103,9 @@ function BookingContent() {
             {selSlot?.date} в {selSlot?.time}
           </p>
           <p className="text-[14px] font-medium mt-3">{sel?.price.toLocaleString()}₽</p>
+          {photoPreview && (
+            <img src={photoPreview} alt="Референс" className="mt-4 w-32 h-32 object-cover rounded-xl mx-auto" />
+          )}
         </div>
         <button
           onClick={() => router.push("/")}
