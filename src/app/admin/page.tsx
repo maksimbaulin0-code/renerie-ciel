@@ -50,6 +50,10 @@ export default function AdminPage() {
 
   const loadAll = async () => {
     setErr("");
+    if (!apiUrl) {
+      setLoading(false);
+      return;
+    }
     try {
       const [s, sl, b] = await Promise.all([
         fetchServices(),
@@ -59,14 +63,18 @@ export default function AdminPage() {
       setServices(s);
       setSlots(sl);
       setBookings(b);
-    } catch {
-      setErr("Не удалось загрузить данные. Убедитесь, что бот запущен.");
+    } catch (e: any) {
+      setErr(e.message || "Не удалось загрузить данные");
     }
   };
 
   useEffect(() => {
-    loadAll().finally(() => setLoading(false));
-  }, []);
+    if (apiUrl) {
+      loadAll().finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [apiUrl]);
 
   // --- SLOT ---
   const handleAddSlot = async () => {
@@ -146,13 +154,13 @@ export default function AdminPage() {
       </p>
 
       {/* API URL */}
-      <div className="mb-6">
-        <p className="text-[10px] tracking-wide text-white/15 uppercase mb-1.5">API URL</p>
-        <div className="flex gap-2">
+      <div className="card p-4 mb-6">
+        <p className="text-[10px] tracking-wide text-white/25 uppercase mb-2">API URL</p>
+        <div className="flex gap-2 mb-2">
           <input
             value={apiUrl}
             onChange={(e) => setApiUrl(e.target.value)}
-            placeholder="https://..."
+            placeholder="https://xxx.ngrok-free.app"
             className="field text-[12px] !py-2.5"
           />
           <button
@@ -162,6 +170,18 @@ export default function AdminPage() {
             OK
           </button>
         </div>
+        {apiUrl.startsWith("http://") && (
+          <p className="text-[11px] text-red-400/60">
+            ⚠️ Используйте https:// (ngrok). HTTP заблокирован браузером.
+          </p>
+        )}
+        {!apiUrl && (
+          <div className="text-[11px] text-white/30 mt-1 space-y-0.5">
+            <p>1. Запустите бота: python bot.py</p>
+            <p>2. Запустите: ngrok http 8080</p>
+            <p>3. Вставьте сюда https:// URL из ngrok</p>
+          </div>
+        )}
       </div>
 
       {err && (
@@ -171,20 +191,28 @@ export default function AdminPage() {
       )}
 
       {/* TABS */}
-      <div className="flex gap-4 mb-8 border-b border-white/[0.04] pb-3">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`text-[12px] tracking-wide pb-1 border-b-2 transition-colors ${
-              tab === t.key
-                ? "text-white border-white"
-                : "text-white/20 border-transparent"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="flex items-center justify-between mb-8 border-b border-white/[0.04] pb-3">
+        <div className="flex gap-4">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`text-[12px] tracking-wide pb-1 border-b-2 transition-colors ${
+                tab === t.key
+                  ? "text-white border-white"
+                  : "text-white/20 border-transparent"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={loadAll}
+          className="text-[11px] text-white/25 hover:text-white/50 transition-colors"
+        >
+          Обновить
+        </button>
       </div>
 
       {loading ? (

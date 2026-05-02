@@ -49,7 +49,8 @@ export interface Booking {
 }
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const url = `${getApiBase()}${path}`;
+  const base = getApiBase();
+  const url = `${base}${path}`;
   try {
     const res = await fetch(url, init);
     if (!res.ok) {
@@ -58,8 +59,11 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
       throw new Error(`HTTP ${res.status}`);
     }
     return (await res.json()) as T;
-  } catch (e) {
-    console.error(`API ${path} failed:`, e);
+  } catch (e: any) {
+    console.error(`API ${path} failed (base=${base}):`, e);
+    if (e.message?.includes("Failed to fetch") || e.message?.includes("NetworkError")) {
+      throw new Error(`Сервер недоступен (${base}). Убедитесь, что бот запущен и URL начинается с https://`);
+    }
     throw e;
   }
 }
