@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { initTG, isTGAdmin } from "@/lib/tg";
+import { initTG } from "@/lib/tg";
 import { fetchCategories, fetchServices } from "@/lib/api";
 import Link from "next/link";
 import type { Category, Service } from "@/lib/api";
@@ -9,13 +9,11 @@ import type { Category, Service } from "@/lib/api";
 export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [services, setServices] = useState<Service[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       await initTG();
-      setIsAdmin(await isTGAdmin());
       try {
         const [c, s] = await Promise.all([fetchCategories(), fetchServices()]);
         setCategories(c);
@@ -51,12 +49,6 @@ export default function HomePage() {
         <Link href="/services" className="block mt-3">
           <button className="btn-ghost text-white/40">Посмотреть прайс →</button>
         </Link>
-
-        {isAdmin && (
-          <Link href="/admin" className="block mt-4">
-            <button className="btn-ghost text-white/25 text-[13px]">Панель мастера</button>
-          </Link>
-        )}
 
         <div className="sep my-10" />
 
