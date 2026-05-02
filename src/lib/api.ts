@@ -4,24 +4,28 @@ function getApiBase(): string {
   if (typeof window === "undefined") return DEFAULT_API_URL;
   const saved = localStorage.getItem("alimsa_api_url");
   if (saved) return saved;
-  // Если открыто через ngrok — используем текущий origin
-  if (window.location.hostname.includes("ngrok")) {
-    return window.location.origin;
-  }
+  if (window.location.hostname.includes("ngrok")) return window.location.origin;
   return DEFAULT_API_URL;
 }
 
 export function setApiBase(url: string) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("alimsa_api_url", url);
-  }
+  if (typeof window !== "undefined") localStorage.setItem("alimsa_api_url", url);
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  icon: string;
+  sort_order: number;
 }
 
 export interface Service {
   id: number;
   name: string;
   price: number;
-  category: string;
+  category_id: number;
+  category_name?: string;
+  category_icon?: string;
 }
 
 export interface Slot {
@@ -37,13 +41,6 @@ export interface PortfolioItem {
   description: string;
 }
 
-export interface Review {
-  id: number;
-  user_name: string;
-  text: string;
-  rating: number;
-}
-
 export interface Booking {
   id: number;
   name: string;
@@ -55,8 +52,7 @@ export interface Booking {
 }
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const base = getApiBase();
-  const url = `${base}${path}`;
+  const url = `${getApiBase()}${path}`;
   try {
     const res = await fetch(url, init);
     if (!res.ok) {
@@ -66,12 +62,16 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
     }
     return (await res.json()) as T;
   } catch (e: any) {
-    console.error(`API ${path} failed (base=${base}):`, e);
+    console.error(`API ${path} failed (base=${url}):`, e);
     if (e.message?.includes("Failed to fetch") || e.message?.includes("NetworkError")) {
-      throw new Error(`Сервер недоступен (${base}). Убедитесь, что бот запущен и URL начинается с https://`);
+      throw new Error(`Сервер недоступен. Убедитесь, что бот запущен.`);
     }
     throw e;
   }
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  return apiFetch<Category[]>("/api/categories");
 }
 
 export async function fetchServices(): Promise<Service[]> {
@@ -90,16 +90,58 @@ export async function fetchPortfolio(): Promise<PortfolioItem[]> {
   return apiFetch<PortfolioItem[]>("/api/portfolio");
 }
 
-export async function fetchReviews(): Promise<Review[]> {
-  return apiFetch<Review[]>("/api/reviews");
-}
-
 export async function fetchBookings(): Promise<Booking[]> {
   return apiFetch<Booking[]>("/api/bookings");
 }
 
+// Categories
+export async function addCategory(name: string, icon: string): Promise<{ ok: boolean; id: number }> {
+  return apiFetch("/api/categories", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, icon }),
+  });
+}
+
+export async function deleteCategory(id: number): Promise<{ ok: boolean }> {
+  return apiFetch("/api/categories", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+}
+
+// Services
+export async function addService(name: string, price: number, category_id: number): Promise<{ ok: boolean; id: number }> {
+  return apiFetch("/api/services", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, price, category_id }),
+  });
+}
+
+export async function deleteService(id: number): Promise<{ ok: boolean }> {
+  return apiFetch("/api/services", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+}
+
+export async function updateService(id: number, name?: string, price?: number): Promise<{ ok: boolean }> {
+  const body: any = { id };
+  if (name !== undefined) body.name = name;
+  if (price !== undefined) body.price = price;
+  return apiFetch("/api/services", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+// Slots
 export async function addSlot(date: string, time: string): Promise<{ ok: boolean; id: number }> {
-  return apiFetch("/api/add-slot", {
+  return apiFetch("/api/slots", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ date, time }),
@@ -107,24 +149,8 @@ export async function addSlot(date: string, time: string): Promise<{ ok: boolean
 }
 
 export async function deleteSlot(id: number): Promise<{ ok: boolean }> {
-  return apiFetch("/api/delete-slot", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id }),
-  });
-}
-
-export async function addService(name: string, price: number, category: string): Promise<{ ok: boolean; id: number }> {
-  return apiFetch("/api/add-service", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, price, category }),
-  });
-}
-
-export async function deleteService(id: number): Promise<{ ok: boolean }> {
-  return apiFetch("/api/delete-service", {
-    method: "POST",
+  return apiFetch("/api/slots", {
+    method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id }),
   });
@@ -138,6 +164,7 @@ export async function updatePrice(id: number, price: number): Promise<{ ok: bool
   });
 }
 
+// Booking
 export async function createBooking(data: {
   service_id: number;
   slot_id: number;
@@ -150,5 +177,24 @@ export async function createBooking(data: {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+  });
+}
+
+// Portfolio
+export async function uploadPortfolio(photo: File, description: string): Promise<{ ok: boolean; id: number; url: string }> {
+  const formData = new FormData();
+  formData.append("photo", photo);
+  formData.append("description", description);
+  return apiFetch("/api/portfolio", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export async function deletePortfolio(id: number): Promise<{ ok: boolean }> {
+  return apiFetch("/api/portfolio", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
   });
 }

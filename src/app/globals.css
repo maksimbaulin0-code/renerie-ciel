@@ -2,14 +2,14 @@
 
 @theme inline {
   --color-bg: #000000;
-  --color-surface: #0a0a0a;
-  --color-surface-2: #141414;
-  --color-border: rgba(255,255,255,0.04);
-  --color-border-strong: rgba(255,255,255,0.08);
+  --color-surface: #0c0c0e;
+  --color-surface-2: #161618;
+  --color-border: rgba(255,255,255,0.06);
+  --color-border-strong: rgba(255,255,255,0.12);
   --color-accent: #ffffff;
   --color-text: #ffffff;
-  --color-text-2: rgba(255,255,255,0.55);
-  --color-text-3: rgba(255,255,255,0.25);
+  --color-text-2: rgba(255,255,255,0.65);
+  --color-text-3: rgba(255,255,255,0.35);
   --font-sans: var(--font-inter);
 }
 
@@ -34,10 +34,7 @@ body {
   border-radius: 18px;
 }
 
-.card:active {
-  transform: scale(0.98);
-  transition: transform 0.1s ease;
-}
+.card:active { transform: scale(0.98); transition: transform 0.1s; }
 
 .card-selected {
   border-color: var(--color-border-strong) !important;
@@ -59,7 +56,7 @@ body {
   font-size: 15px;
   border: none;
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: all 0.1s;
   letter-spacing: 0.02em;
 }
 
@@ -79,7 +76,7 @@ body {
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: all 0.1s;
 }
 
 .btn-ghost:active { background: var(--color-surface); }
@@ -114,7 +111,7 @@ body {
 
 .field:focus {
   border-color: var(--color-border-strong);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.03);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
 }
 
 .field::placeholder { color: var(--color-text-3); }
@@ -123,7 +120,7 @@ textarea.field { resize: none; line-height: 1.6; }
 /* ---- SEPARATOR ---- */
 .sep {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   margin: 0;
   border: none;
 }
@@ -191,7 +188,7 @@ textarea.field { resize: none; line-height: 1.6; }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.2);
 }
 
 /* ---- PRICE ---- */
@@ -214,6 +211,6 @@ textarea.field { resize: none; line-height: 1.6; }
 .ornament {
   width: 40px;
   height: 1px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.12);
   margin: 0 auto;
 }
