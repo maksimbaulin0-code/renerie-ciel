@@ -137,3 +137,18 @@ export async function updatePrice(id: number, price: number): Promise<{ ok: bool
     body: JSON.stringify({ id, price }),
   });
 }
+
+export async function createBooking(data: {
+  service_id: number;
+  slot_id: number;
+  user_id: string;
+  user_name: string;
+  comment: string;
+  photo_wish: string;
+}): Promise<{ ok: boolean; id: number }> {
+  return apiFetch("/api/booking", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}

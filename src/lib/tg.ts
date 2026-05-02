@@ -41,16 +41,20 @@ export async function getTGUser() {
   }
 }
 
+export async function hasWebApp(): Promise<boolean> {
+  const wa = await getWebApp();
+  return !!wa;
+}
+
 export async function sendTGData(data: Record<string, unknown>) {
   const wa = await getWebApp();
   if (!wa) {
-    console.log("sendData:", data);
-    return;
+    throw new Error("Not in Telegram WebApp");
   }
   try {
     wa.sendData(JSON.stringify(data));
-  } catch {
-    console.log("sendData:", data);
+  } catch (e) {
+    throw e;
   }
 }
 

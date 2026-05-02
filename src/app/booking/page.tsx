@@ -68,6 +68,7 @@ function BookingContent() {
     if (!sel || !selSlot) return;
     setSubmitting(true);
     try {
+      // Try Telegram WebApp first
       await sendTGData({
         action: "book",
         service_id: sel.id,
@@ -77,8 +78,24 @@ function BookingContent() {
       });
       setDone(true);
     } catch {
-      setErr("Ошибка записи");
-      setSubmitting(false);
+      // Fallback: send via API directly
+      try {
+        const { getTGUser } = await import("@/lib/tg");
+        const user = await getTGUser();
+        const { createBooking } = await import("@/lib/api");
+        await createBooking({
+          service_id: sel.id,
+          slot_id: selSlot.id,
+          user_id: user.id || "web",
+          user_name: user.name || "Гость",
+          comment: comment.trim(),
+          photo_wish: photoFile ? photoFile.name : "",
+        });
+        setDone(true);
+      } catch (e: any) {
+        setErr("Ошибка записи: " + (e.message || ""));
+        setSubmitting(false);
+      }
     }
   };
 
