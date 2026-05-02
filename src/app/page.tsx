@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { initTG, getTGUser, isTGAdmin } from "@/lib/tg";
+import { initTG, isTGAdmin } from "@/lib/tg";
 import { fetchServices } from "@/lib/api";
 import Link from "next/link";
 import type { Service } from "@/lib/api";
@@ -49,8 +49,8 @@ export default function HomePage() {
         </Link>
 
         {isAdmin && (
-          <Link href="/admin" className="block mt-3 fade-up">
-            <button className="btn-ghost text-white/50">Панель мастера</button>
+          <Link href="/admin" className="block mt-3">
+            <button className="btn-ghost text-white/40 text-[13px]">Панель мастера</button>
           </Link>
         )}
 

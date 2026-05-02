@@ -37,43 +37,71 @@ export interface Booking {
   photo_wish: string;
 }
 
-export async function fetchServices(): Promise<Service[]> {
-  const res = await fetch(`${API_BASE}/api/services`);
+async function apiFetch(path: string, init?: RequestInit) {
+  const res = await fetch(`${API_BASE}${path}`, init);
   return res.json();
+}
+
+export async function fetchServices(): Promise<Service[]> {
+  return apiFetch("/api/services");
 }
 
 export async function fetchSlots(): Promise<Slot[]> {
-  const res = await fetch(`${API_BASE}/api/slots`);
-  return res.json();
+  return apiFetch("/api/slots");
+}
+
+export async function fetchAllSlots(): Promise<Slot[]> {
+  return apiFetch("/api/all-slots");
 }
 
 export async function fetchPortfolio(): Promise<PortfolioItem[]> {
-  const res = await fetch(`${API_BASE}/api/portfolio`);
-  return res.json();
+  return apiFetch("/api/portfolio");
 }
 
 export async function fetchReviews(): Promise<Review[]> {
-  const res = await fetch(`${API_BASE}/api/reviews`);
-  return res.json();
+  return apiFetch("/api/reviews");
 }
 
-export async function fetchBookings(userId: string): Promise<Booking[]> {
-  const res = await fetch(`${API_BASE}/api/bookings?user_id=${userId}`);
-  return res.json();
+export async function fetchBookings(): Promise<Booking[]> {
+  return apiFetch("/api/bookings");
 }
 
-export async function updatePrice(id: number, price: number): Promise<void> {
-  await fetch(`${API_BASE}/api/update-price`, {
+export async function addSlot(date: string, time: string): Promise<{ ok: boolean; id: number }> {
+  return apiFetch("/api/add-slot", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, price }),
+    body: JSON.stringify({ date, time }),
   });
 }
 
 export async function deleteSlot(id: number): Promise<void> {
-  await fetch(`${API_BASE}/api/delete-slot`, {
+  await apiFetch("/api/delete-slot", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id }),
+  });
+}
+
+export async function addService(name: string, price: number, category: string): Promise<{ ok: boolean; id: number }> {
+  return apiFetch("/api/add-service", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, price, category }),
+  });
+}
+
+export async function deleteService(id: number): Promise<void> {
+  await apiFetch("/api/delete-service", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+}
+
+export async function updatePrice(id: number, price: number): Promise<void> {
+  await apiFetch("/api/update-price", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, price }),
   });
 }
