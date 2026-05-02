@@ -18,70 +18,42 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     fetchPortfolio().then((data) => {
-      setItems(
-        data.length > 0
-          ? data
-          : (FALLBACK.map((f) => ({ ...f, photo_url: "" })) as PortfolioItem[])
-      );
+      setItems(data.length > 0 ? data : FALLBACK.map((f) => ({ ...f, photo_url: "" })) as PortfolioItem[]);
     });
   }, []);
 
   return (
-    <div className="px-5 pt-6 pb-24">
-      <h1 className="text-xl font-light tracking-wide mb-1">
-        <span className="text-[var(--color-accent)]">Портфолио</span>
-      </h1>
-      <p className="text-[var(--color-text-muted)] text-xs mb-6">
-        Работы мастера
-      </p>
+    <div className="px-5 pt-10 pb-24">
+      <h1 className="text-[20px] font-light tracking-wide mb-8">Работы</h1>
 
       {/* CAROUSEL */}
-      <div className="carousel mb-8 -mx-5 px-5">
+      <div className="carousel -mx-5 px-5 mb-10">
         {items.map((item) => (
-          <div
-            key={item.id}
-            className="card w-[240px] h-[300px] overflow-hidden flex flex-col"
-          >
+          <div key={item.id} className="w-[220px] h-[280px] card overflow-hidden flex flex-col">
             {item.photo_url ? (
-              <img
-                src={item.photo_url}
-                alt={item.description}
-                className="w-full h-[220px] object-cover"
-              />
+              <img src={item.photo_url} alt={item.description} className="w-full h-[220px] object-cover" />
             ) : (
               <div className="w-full h-[220px] flex items-center justify-center bg-[var(--color-surface-2)]">
-                <span className="text-4xl opacity-20">✦</span>
+                <span className="text-white/10 text-3xl">◇</span>
               </div>
             )}
             <div className="p-3 flex-1 flex items-center">
-              <p className="text-xs text-[var(--color-text-dim)]">
-                {item.description}
-              </p>
+              <p className="text-[11px] text-white/40">{item.description}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* GRID */}
-      <p className="section-label mb-4">Галерея</p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         {items.slice(0, 6).map((item) => (
-          <div
-            key={`g-${item.id}`}
-            className="card aspect-square overflow-hidden"
-          >
+          <div key={item.id} className="card aspect-square overflow-hidden">
             {item.photo_url ? (
-              <img
-                src={item.photo_url}
-                alt={item.description}
-                className="w-full h-full object-cover"
-              />
+              <img src={item.photo_url} alt={item.description} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--color-surface-2)]">
-                <span className="text-2xl opacity-20 mb-1">◇</span>
-                <p className="text-[9px] text-[var(--color-text-muted)] text-center px-2">
-                  {item.description}
-                </p>
+                <span className="text-white/10 text-xl mb-1">◇</span>
+                <p className="text-[9px] text-white/20 text-center px-2">{item.description}</p>
               </div>
             )}
           </div>

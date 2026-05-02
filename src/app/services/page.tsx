@@ -5,85 +5,45 @@ import { fetchServices } from "@/lib/api";
 import Link from "next/link";
 import type { Service } from "@/lib/api";
 
-const CATS: Record<string, { title: string; icon: string }> = {
-  extension: { title: "Наращивание", icon: "✦" },
-  claws: { title: "Когти", icon: "◇" },
-  coverage: { title: "Покрытие", icon: "◧" },
+const CATS: Record<string, string> = {
+  extension: "Наращивание",
+  claws: "Когти",
+  coverage: "Покрытие",
 };
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
-  const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
     fetchServices().then(setServices);
   }, []);
 
-  const grouped = Object.entries(CATS).map(([key, cat]) => ({
-    ...cat,
+  const grouped = Object.entries(CATS).map(([key, title]) => ({
+    title,
     key,
-    services: services.filter((s) => s.category === key),
+    items: services.filter((s) => s.category === key),
   }));
 
-  const displayed = active ? grouped.filter((g) => g.key === active) : grouped;
-
   return (
-    <div className="px-5 pt-6 pb-24">
-      <h1 className="text-xl font-light tracking-wide mb-1">
-        <span className="text-[var(--color-accent)]">Услуги</span>
-      </h1>
-      <p className="text-[var(--color-text-muted)] text-xs mb-6">
-        Выберите категорию или услугу для записи
-      </p>
+    <div className="px-5 pt-10 pb-24">
+      <h1 className="text-[20px] font-light tracking-wide mb-8">Прайс</h1>
 
-      {/* FILTER CHIPS */}
-      <div className="flex gap-2 mb-8 overflow-x-auto scrollbar-hide">
-        <button
-          onClick={() => setActive(null)}
-          className={`badge whitespace-nowrap transition-all ${
-            !active ? "!bg-[var(--color-accent-glow)] !border-[var(--color-accent)]/30 !text-[var(--color-accent-2)]" : ""
-          }`}
-        >
-          Все
-        </button>
-        {grouped.map((cat) => (
-          <button
-            key={cat.key}
-            onClick={() => setActive(cat.key)}
-            className={`badge whitespace-nowrap transition-all ${
-              active === cat.key
-                ? "!bg-[var(--color-accent-glow)] !border-[var(--color-accent)]/30 !text-[var(--color-accent-2)]"
-                : ""
-            }`}
-          >
-            {cat.icon} {cat.title}
-          </button>
-        ))}
-      </div>
+      {/* CTA */}
+      <Link href="/booking" className="block mb-10">
+        <button className="btn-book">Записаться</button>
+      </Link>
 
-      {/* SERVICE CARDS */}
-      {displayed.map((cat) => (
+      {grouped.map((cat) => (
         <div key={cat.key} className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-sm">{cat.icon}</span>
-            <span className="section-label">{cat.title}</span>
-          </div>
-          <div className="space-y-3">
-            {cat.services.map((svc) => (
+          <p className="text-[11px] tracking-[0.15em] uppercase text-white/25 mb-3">
+            {cat.title}
+          </p>
+          <div className="space-y-1">
+            {cat.items.map((svc) => (
               <Link href={`/booking?service=${svc.id}`} key={svc.id}>
-                <div className="card p-5 flex justify-between items-center">
-                  <div className="flex-1">
-                    <p className="text-[14px] font-medium">{svc.name}</p>
-                    <p className="text-[11px] text-[var(--color-text-muted)] mt-1">
-                      {cat.title}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="price-tag text-[14px]">
-                      {svc.price.toLocaleString()}₽
-                    </span>
-                    <span className="text-[var(--color-text-muted)] text-xs">→</span>
-                  </div>
+                <div className="flex justify-between items-center py-3.5 border-b border-white/[0.04]">
+                  <span className="text-[14px]">{svc.name}</span>
+                  <span className="text-[14px] text-white/50">{svc.price.toLocaleString()}₽</span>
                 </div>
               </Link>
             ))}
