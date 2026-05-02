@@ -46,7 +46,7 @@ export default function HomePage() {
         <Link href="/booking" className="block">
           <button className="btn-book">Записаться</button>
         </Link>
-        <Link href="/services" className="block mt-3">
+        <Link href="/services" className="block mt-3 mb-6">
           <button className="btn-ghost text-white/40">Посмотреть прайс →</button>
         </Link>
 
