@@ -2,7 +2,13 @@ export const DEFAULT_API_URL = "http://localhost:8080";
 
 function getApiBase(): string {
   if (typeof window === "undefined") return DEFAULT_API_URL;
-  return localStorage.getItem("alimsa_api_url") || DEFAULT_API_URL;
+  const saved = localStorage.getItem("alimsa_api_url");
+  if (saved) return saved;
+  // Если открыто через ngrok — используем текущий origin
+  if (window.location.hostname.includes("ngrok")) {
+    return window.location.origin;
+  }
+  return DEFAULT_API_URL;
 }
 
 export function setApiBase(url: string) {
