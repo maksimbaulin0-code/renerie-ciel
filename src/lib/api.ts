@@ -37,33 +37,44 @@ export interface Booking {
   photo_wish: string;
 }
 
-async function apiFetch(path: string, init?: RequestInit) {
-  const res = await fetch(`${API_BASE}${path}`, init);
-  return res.json();
+async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const url = `${API_BASE}${path}`;
+  try {
+    const res = await fetch(url, init);
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error(`API ${path} error ${res.status}:`, txt);
+      throw new Error(`HTTP ${res.status}`);
+    }
+    return (await res.json()) as T;
+  } catch (e) {
+    console.error(`API ${path} failed:`, e);
+    throw e;
+  }
 }
 
 export async function fetchServices(): Promise<Service[]> {
-  return apiFetch("/api/services");
+  return apiFetch<Service[]>("/api/services");
 }
 
 export async function fetchSlots(): Promise<Slot[]> {
-  return apiFetch("/api/slots");
+  return apiFetch<Slot[]>("/api/slots");
 }
 
 export async function fetchAllSlots(): Promise<Slot[]> {
-  return apiFetch("/api/all-slots");
+  return apiFetch<Slot[]>("/api/all-slots");
 }
 
 export async function fetchPortfolio(): Promise<PortfolioItem[]> {
-  return apiFetch("/api/portfolio");
+  return apiFetch<PortfolioItem[]>("/api/portfolio");
 }
 
 export async function fetchReviews(): Promise<Review[]> {
-  return apiFetch("/api/reviews");
+  return apiFetch<Review[]>("/api/reviews");
 }
 
 export async function fetchBookings(): Promise<Booking[]> {
-  return apiFetch("/api/bookings");
+  return apiFetch<Booking[]>("/api/bookings");
 }
 
 export async function addSlot(date: string, time: string): Promise<{ ok: boolean; id: number }> {
@@ -74,8 +85,8 @@ export async function addSlot(date: string, time: string): Promise<{ ok: boolean
   });
 }
 
-export async function deleteSlot(id: number): Promise<void> {
-  await apiFetch("/api/delete-slot", {
+export async function deleteSlot(id: number): Promise<{ ok: boolean }> {
+  return apiFetch("/api/delete-slot", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id }),
@@ -90,16 +101,16 @@ export async function addService(name: string, price: number, category: string):
   });
 }
 
-export async function deleteService(id: number): Promise<void> {
-  await apiFetch("/api/delete-service", {
+export async function deleteService(id: number): Promise<{ ok: boolean }> {
+  return apiFetch("/api/delete-service", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id }),
   });
 }
 
-export async function updatePrice(id: number, price: number): Promise<void> {
-  await apiFetch("/api/update-price", {
+export async function updatePrice(id: number, price: number): Promise<{ ok: boolean }> {
+  return apiFetch("/api/update-price", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id, price }),
