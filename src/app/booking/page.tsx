@@ -2,8 +2,8 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { fetchServices, fetchSlots } from "@/lib/api";
-import { sendTGData } from "@/lib/tg";
+import { fetchServices, fetchSlots, createBooking } from "@/lib/api";
+import { getTGUser } from "@/lib/tg";
 import type { Service, Slot } from "@/lib/api";
 
 type Step = "service" | "slot" | "details";
@@ -67,35 +67,21 @@ function BookingContent() {
   const handleBook = async () => {
     if (!sel || !selSlot) return;
     setSubmitting(true);
+    setErr("");
     try {
-      // Try Telegram WebApp first
-      await sendTGData({
-        action: "book",
+      const user = await getTGUser();
+      await createBooking({
         service_id: sel.id,
         slot_id: selSlot.id,
+        user_id: user.id || "web",
+        user_name: user.name || "Гость",
         comment: comment.trim(),
         photo_wish: photoFile ? photoFile.name : "",
       });
       setDone(true);
-    } catch {
-      // Fallback: send via API directly
-      try {
-        const { getTGUser } = await import("@/lib/tg");
-        const user = await getTGUser();
-        const { createBooking } = await import("@/lib/api");
-        await createBooking({
-          service_id: sel.id,
-          slot_id: selSlot.id,
-          user_id: user.id || "web",
-          user_name: user.name || "Гость",
-          comment: comment.trim(),
-          photo_wish: photoFile ? photoFile.name : "",
-        });
-        setDone(true);
-      } catch (e: any) {
-        setErr("Ошибка записи: " + (e.message || ""));
-        setSubmitting(false);
-      }
+    } catch (e: any) {
+      setErr("Ошибка записи: " + (e.message || ""));
+      setSubmitting(false);
     }
   };
 
