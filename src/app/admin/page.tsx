@@ -10,6 +10,8 @@ import {
   deleteSlot,
   addService,
   deleteService,
+  setApiBase,
+  DEFAULT_API_URL,
 } from "@/lib/api";
 import type { Service, Slot, Booking } from "@/lib/api";
 
@@ -29,6 +31,13 @@ export default function AdminPage() {
   const [editing, setEditing] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [apiUrl, setApiUrl] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setApiUrl(localStorage.getItem("alimsa_api_url") || DEFAULT_API_URL);
+    }
+  }, []);
 
   // slot form
   const [slotDate, setSlotDate] = useState("");
@@ -135,6 +144,25 @@ export default function AdminPage() {
       <p className="text-white/20 text-[12px] mb-6">
         Управление студией
       </p>
+
+      {/* API URL */}
+      <div className="mb-6">
+        <p className="text-[10px] tracking-wide text-white/15 uppercase mb-1.5">API URL</p>
+        <div className="flex gap-2">
+          <input
+            value={apiUrl}
+            onChange={(e) => setApiUrl(e.target.value)}
+            placeholder="https://..."
+            className="field text-[12px] !py-2.5"
+          />
+          <button
+            onClick={() => { setApiBase(apiUrl); setErr(""); loadAll(); }}
+            className="btn-book !w-auto !px-3 !py-2.5 text-[12px]"
+          >
+            OK
+          </button>
+        </div>
+      </div>
 
       {err && (
         <div className="card p-4 mb-6 border-red-400/20">

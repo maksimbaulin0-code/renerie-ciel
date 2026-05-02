@@ -1,4 +1,15 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+export const DEFAULT_API_URL = "http://localhost:8080";
+
+function getApiBase(): string {
+  if (typeof window === "undefined") return DEFAULT_API_URL;
+  return localStorage.getItem("alimsa_api_url") || DEFAULT_API_URL;
+}
+
+export function setApiBase(url: string) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("alimsa_api_url", url);
+  }
+}
 
 export interface Service {
   id: number;
@@ -38,7 +49,7 @@ export interface Booking {
 }
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const url = `${API_BASE}${path}`;
+  const url = `${getApiBase()}${path}`;
   try {
     const res = await fetch(url, init);
     if (!res.ok) {
